@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SlideShow</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <button id="menu" aria-controls="drawer" aria-expanded="false" title="Show, hide and resize the panels">☰</button>
+  <strong id="title">Cluster annotation</strong>
+  <span id="subtitle" class="muted"></span>
+  <span class="spacer"></span>
+  <span id="savestatus" class="muted"></span>
+  <button id="export" title="Download the labels as CSV">Export CSV</button>
+</header>
+
+<main>
+  <nav id="drawer" aria-label="Panels">
+    <h2>Panels</h2>
+    <label><input type="checkbox" data-panel="umap"> Embedding map (UMAP)</label>
+    <label><input type="checkbox" data-panel="tissue"> Tissue <span id="tissuenote" class="muted small"></span></label>
+    <label><input type="checkbox" data-panel="side"> Side panel: clusters, markers, composition</label>
+    <p class="muted small">Drag the bars between the panels to resize them; double-click a bar for its default width.
+      The layout is remembered in this browser, separately for each dashboard.</p>
+    <button id="layoutreset">Reset layout</button>
+    <h2 class="drawerh">Filter cells</h2>
+    <select id="filtervar" title="Show only the cells of chosen categories, e.g. the tumour region"></select>
+    <div id="filters"></div>
+    <p id="filtercount" class="small"></p>
+    <p class="muted small">Hides the other cells in the map and the tissue view. Markers, composition, the gene chart and
+      cluster counts are precomputed on all cells and do not follow the filter.</p>
+  </nav>
+  <section id="mapwrap">
+    <div id="toolbar">
+      <label>Colour by
+        <select id="colorby"></select>
+      </label>
+      <label>Gene
+        <input id="gene" list="genelist" placeholder="e.g. EPCAM" size="10" autocomplete="off">
+        <datalist id="genelist"></datalist>
+      </label>
+      <span id="embtoggle" class="segmented umaponly"></span>
+      <label class="umaponly" title="Point size">Size <input id="psize" type="range" min="0.5" max="4" step="0.1" value="1.3"></label>
+      <label class="umaponly" title="Point opacity">Opacity <input id="palpha" type="range" min="0.05" max="1" step="0.05" value="0.5"></label>
+      <label class="umaponly"><input id="showlabels" type="checkbox" checked> Labels</label>
+      <button id="reset" class="umaponly">Reset view</button>
+    </div>
+    <div id="views">
+      <div id="map">
+        <canvas id="gl"></canvas>
+        <svg id="overlay"></svg>
+        <div id="legend"></div>
+        <div id="loading">Loading…</div>
+      </div>
+      <div id="split-views" class="splitter" role="separator" aria-orientation="vertical" title="Drag to resize; double-click for equal widths" hidden></div>
+      <div id="tissue" hidden>
+        <canvas id="glsp"></canvas>
+        <svg id="spoverlay"></svg>
+        <div id="sptools">
+          <span id="spslides" class="segmented"></span>
+          <label title="Outline of each cell, as segmented (for Xenium: a territory around the nucleus, not a membrane)"><input id="spout" type="checkbox" checked> Outlines</label>
+          <label title="Nucleus outlines"><input id="spnuc" type="checkbox"> Nuclei</label>
+          <button id="splasso" title="Draw around cells in the tissue: they are highlighted on the UMAP too">Lasso</button>
+          <button id="spclear" title="Clear the lasso selection (Esc)">Clear</button>
+          <button id="spfit">Fit slide</button>
+        </div>
+        <div id="spinfo"></div>
+      </div>
+    </div>
+  </section>
+  <div id="split-side" class="splitter" role="separator" aria-orientation="vertical" title="Drag to resize; double-click for the default width"></div>
+
+  <aside id="side">
+    <section>
+      <h2>Clusters <span class="muted" id="nlabelled"></span></h2>
+      <div id="clusterlist"></div>
+    </section>
+    <section id="detail"><p class="muted">Click a cluster on the map or in the list. Shift-click adds a cluster to the
+      selection; markers are then computed for the union. Esc clears.</p></section>
+    <section id="markersec" hidden>
+      <h2>Markers <span class="muted" id="markertitle"></span></h2>
+      <div class="controls">
+        <label>vs <select id="ref"></select></label>
+        <label title="Hide genes detected in fewer than this share of the selected cells">min % in
+          <input id="minpct" type="number" min="0" max="100" step="5" value="10"></label>
+        <input id="genefilter" placeholder="filter genes" size="9">
+      </div>
+      <div id="markers"></div>
+      <p class="muted small">No p-values on purpose: cells are not independent and the clusters were defined on these
+        same genes, so any cell-level test is circular and wildly significant. Rank by effect size and check that it
+        holds across replicates (last two columns).</p>
+    </section>
+    <section id="genesec" hidden>
+      <h2 id="genetitle"></h2>
+      <div id="genechart"></div>
+    </section>
+    <section id="compsec" hidden>
+      <h2>Composition of the selection</h2>
+      <div id="comp"></div>
+    </section>
+  </aside>
+</main>
+<div id="tooltip" hidden></div>
+<datalist id="labelopts"></datalist>
+<script src="d3.v7.min.js"></script>
+<script src="earcut.min.js"></script>
+<script src="layout.js"></script>
+<script src="spatial.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

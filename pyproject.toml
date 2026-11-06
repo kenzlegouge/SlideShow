@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slideshow"
+version = "0.1.0"
+description = "Cluster annotation dashboard for spatial single-cell data: UMAP, tissue segmentation and replicate-aware markers in the browser"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "scipy>=1.10",
+  "anndata>=0.10",
+  "pyarrow>=14",        # parquet polygon tables (Xenium cell_boundaries.parquet, R export)
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "aiohttp>=3.9"]   # aiohttp: headless-browser smoke test (tests/test_viewer.py)
+docs = ["mkdocs-material>=9.5,<10"]  # documentation site: mkdocs serve / mkdocs build
+
+[project.scripts]
+slideshow = "slideshow.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+slideshow = ["app/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
